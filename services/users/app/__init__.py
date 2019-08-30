@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 from flask_restful import Api, Resource
 
@@ -5,7 +7,8 @@ from flask_restful import Api, Resource
 app = Flask(__name__)
 api = Api(app)
 
-app.config.from_object('app.config.DevelopmentConfig')
+app_settings = os.getenv('APP_SETTINGS')
+app.config.from_object(app_settings)
 
 
 # TODO remove to separate api user module
