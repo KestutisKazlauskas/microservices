@@ -1,3 +1,4 @@
 FROM postgres:11.5-alpine
 
-ADD create.sql /docker-entrypoint-initdbd.d
+# run sql on postgres init
+ADD create.sql /docker-entrypoint-initdb.d
