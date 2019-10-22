@@ -1,43 +1,30 @@
 import os
 
 from flask import Flask
-from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 
-# init flask and flask api
-app = Flask(__name__)
-api = Api(app)
-
-# init app settings
-app_settings = os.getenv('APP_SETTINGS')
-app.config.from_object(app_settings)
-
 # database inti
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 
-# TODO remove to models.py
-class User(db.Model):
-    __tablename__ = 'users'
+def create_app(script_info=None):
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(128), nullable=False)
-    email = db.Column(db.String(128), nullable=False)
-    active = db.Column(db.Boolean(), default=True, nullable=False)
+    # App initiation
+    app = Flask(__name__)
 
-    def __init__(self, username, email):
-        self.username = username
-        self.email = email
+    # Set configs from file
+    app_settings = os.getenv('APP_SETTINGS')
+    app.config.from_object(app_settings)
 
-# TODO remove to separate api user module
-class UserPingView(Resource):
+    # app extension setup
+    db.init_app(app)
 
-    @staticmethod
-    def get():
+    # register blueprints of the app
+    from app.api import user_blueprint
+    app.register_blueprint(user_blueprint)
 
-        return {
-            'status': 'success',
-            'message': 'pong!'
-        }
+    # shell context for flask cli
+    @app.shell_context_processor
+    def ctx():
+        return {'app': app, 'db': db}
 
-
-api.add_resource(UserPingView, '/users/ping/')
+    return app

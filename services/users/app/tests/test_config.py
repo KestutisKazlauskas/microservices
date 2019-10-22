@@ -4,7 +4,7 @@ import unittest
 from flask import current_app
 from flask_testing import TestCase
 
-from app import app
+from app.tests import app
 
 
 class MainConfigTestCase(TestCase):
