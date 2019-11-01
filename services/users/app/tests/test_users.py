@@ -51,15 +51,47 @@ class TestUserService(BaseTestCase):
                     content_type='application/json'
                 )
                 data = json.loads(response.data.decode())
-                
+
                 self.assertEqual(response.status_code, 400)
                 self.assertEqual(data['message'], f'{key} is required!')
 
     def test_incorrect_email(self):
-        pass
+        with self.client:
+            data = {"username": "Jhon", "email": "jhon"}
+            response = self.client.post(
+                "/users/",
+                data=json.dumps(data),
+                content_type="application/json"
+            )
+
+            data = json.loads(response.data.decode())
+
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(data['message'], "email is not valid!")
 
     def test_duplicated_user_by_email(self):
-        pass
+        data = {"username": "John", "email": "john@gmail.com"}
+
+        with self.client:
+            # Create first user
+            self.client.post(
+                "/users/",
+                data=json.dumps(data),
+                content_type="application/json"
+            )
+
+            # Try to creat the same user
+            response = self.client.post(
+                "/users/",
+                data=json.dumps(data),
+                content_type="application/json"
+            )
+
+            data = json.loads(response.data.decode())
+
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(data['message'], "user exists!")
+
 
 if __name__ == '__main__':
     unittest.main()

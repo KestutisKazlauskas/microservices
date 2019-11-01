@@ -3,6 +3,7 @@ from flask_restful import Resource, Api
 
 from app import db
 from app.api.models import User
+from app.api.utils import UserManger
 
 user_blueprint = Blueprint('users', __name__)
 api = Api(user_blueprint)
@@ -21,13 +22,15 @@ class UserList(Resource):
 
     @staticmethod
     def post():
-        # TODO make validation and serialization
         data = request.get_json()
-        user = User(email=data.get('email'), username=data.get('username'))
-        db.session.add(user)
-        db.session.commit()
 
-        return {'username': user.username, 'email': user.email}, 201
+        user_manager = UserManger(_db=db, data=data)
+        if user_manager.is_valid():
+            user_manager.save()
+
+            return user_manager.data, 201
+
+        return {"message": user_manager.error}, 400
 
 
 api.add_resource(UserList, '/users/')
